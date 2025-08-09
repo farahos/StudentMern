@@ -11,7 +11,7 @@ import cors from 'cors';
 const app = express();
 const PORT = 8000
 app.use(cors({
-  origin: 'https://schoolsys-phcs.onrender.com/',
+  origin: 'https://schoolsys-aiom.onrender.com',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   credentials: true
 }));
