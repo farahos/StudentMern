@@ -10,7 +10,7 @@ export default defineConfig({
      tailwindcss()],
      server :{
     proxy:{
-      '/api': "http://localhost:8000"
+      '/api': "https://studentmern.onrender.com/"
     }
   }
 })
