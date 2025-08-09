@@ -8,9 +8,9 @@ export default defineConfig({
   plugins: [react(),
     
      tailwindcss()],
-     server :{
-    proxy:{
-      '/api': "https://studentmern.onrender.com/"
-    }
-  }
+  //    server :{
+  //   proxy:{
+  //     '/api': "https://studentmern.onrender.com/"
+  //   }
+  // }
 })

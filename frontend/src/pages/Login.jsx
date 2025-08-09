@@ -31,7 +31,7 @@ const Login = () => {
     event.preventDefault();
     setLoading(true);
     try {
-        const {data} = await axios.post('/api/user/loginuser', form);
+        const {data} = await axios.post('https://studentmern.onrender.com/api/user/loginuser', form);
         console.log(data); 
         toast.success("Login successful!");
         setLoading(false);
