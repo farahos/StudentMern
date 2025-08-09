@@ -34,7 +34,7 @@ const AddStudent = () => {
   const fetchStudents = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("/api/student/getStudents");
+      const res = await axios.get("https://studentmern.onrender.com/api/student/getStudents");
       setStudents(res.data);
     } catch (error) {
       toast.error("Failed to fetch students");
@@ -60,10 +60,10 @@ const AddStudent = () => {
     e.preventDefault();
     try {
       if (editId) {
-        await axios.put(`/api/student/updateStudent/${editId}`, student);
+        await axios.put(`https://studentmern.onrender.com/api/student/updateStudent/${editId}`, student);
         toast.success("Student updated successfully!");
       } else {
-        await axios.post("/api/student/addStudent", student);
+        await axios.post("https://studentmern.onrender.com/api/student/addStudent", student);
         toast.success("Student added successfully!");
       }
       
@@ -108,7 +108,7 @@ const AddStudent = () => {
           label: 'Yes',
           onClick: async () => {
             try {
-              await axios.delete(`/api/student/deleteStudent/${id}`);
+              await axios.delete(`https://studentmern.onrender.com/api/student/deleteStudent/${id}`);
               toast.success("Student deleted successfully!");
               fetchStudents();
             } catch (error) {
@@ -139,7 +139,7 @@ const AddStudent = () => {
     formData.append("file", file);
 
     try {
-      await axios.post("/api/student/import", formData, {
+      await axios.post("https://studentmern.onrender.com/api/student/import", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

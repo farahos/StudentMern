@@ -21,10 +21,10 @@ const Dashboard = () => {
 
         // Fetch all data in parallel
         const [studentsRes, countRes, feeRes, coursesRes] = await Promise.all([
-          axios.get("/api/student/getStudents"),
-          axios.get("/api/student/countStudents"),
-          axios.get("/api/student/countFee"),
-          axios.get("/api/student/countCourse")
+          axios.get("https://studentmern.onrender.com/api/student/getStudents"),
+          axios.get("https://studentmern.onrender.com/api/student/countStudents"),
+          axios.get("https://studentmern.onrender.com/api/student/countFee"),
+          axios.get("https://studentmern.onrender.com/api/student/countCourse")
         ]);
 
         setStats({

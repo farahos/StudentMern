@@ -16,7 +16,7 @@ const ViewStudent = () => {
     const fetchStudents = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("/api/student/getStudents");
+        const response = await axios.get("https://studentmern.onrender.com/api/student/getStudents");
         setStudents(response.data);
       } catch (error) {
         console.error("Error fetching students:", error);
