@@ -14,7 +14,7 @@ const AbsentStudentsList = () => {
   useEffect(() => {
     const fetchClasses = async () => {
       try {
-        const response = await axios.get('/api/student/studentClass');
+        const response = await axios.get('https://studentmern.onrender.com/api/student/studentClass');
         setClasses(response.data);
       } catch (error) {
         console.error('Error fetching classes:', error);
@@ -30,8 +30,7 @@ const AbsentStudentsList = () => {
       
       try {
         setLoading(true);
-        const response = await axios.get(
-          `/api/attendance/absent/${selectedClass}/${selectedDate}`
+        const response = await axios.get(`https://studentmern.onrender.com/api/attendance/absent/${selectedClass}/${selectedDate}`
         );
         setAbsentStudents(response.data);
       } catch (error) {

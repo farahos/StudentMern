@@ -14,9 +14,9 @@ const Attendance = () => {
   // Fetch all unique classes
   useEffect(() => {
     const fetchClasses = async () => {
-        
+
       try {
-        const response = await axios.get("/api/student/studentClass");
+        const response = await axios.get("https://studentmern.onrender.com/api/student/studentClass");
         setClasses(response.data);
       } catch (error) {
         console.error("Error fetching classes:", error);
@@ -33,7 +33,7 @@ const Attendance = () => {
 
       try {
         setLoading(true);
-        const response = await axios.get(`/api/student/class/${selectedClass}`);
+        const response = await axios.get(`https://studentmern.onrender.com/api/student/class/${selectedClass}`);
         const sortedStudents = [...response.data].sort((a, b) =>
           a.studentName.localeCompare(b.studentName)
         );
@@ -83,7 +83,7 @@ const Attendance = () => {
         course: student.course || "General",
       }));
 
-      await axios.post("/api/attendance/mark-bulk", {
+      await axios.post("https://studentmern.onrender.com    /api/attendance/mark-bulk", {
         classId: selectedClass,
         date: attendanceDate,
         attendanceRecords,
