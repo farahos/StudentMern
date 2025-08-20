@@ -3,7 +3,7 @@ import student from '../model/Student.js';
 export const addStudent = async (req, res) => {
     // add a new student
     try {
-        const { studentName, studentPhone, course, motherName, motherPhone, fee } = req.body;
+        const { studentName, studentPhone, course, motherName, motherPhone, studentClass, fee } = req.body;
 
         const newStudent = new student({
             studentName,
@@ -11,6 +11,7 @@ export const addStudent = async (req, res) => {
             course,
             motherName,
             motherPhone,
+            studentClass,
             fee
         });
 
@@ -40,7 +41,7 @@ export const getStudents = async (req, res) => {
     // update a student
     try {
         const { id } = req.params;
-        const { studentName, studentPhone, course, motherName, motherPhone, fee } = req.body;
+        const { studentName, studentPhone, course, motherName, motherPhone, studentClass, fee } = req.body;
 
         const updatedStudent = await student.findByIdAndUpdate(id, {
             studentName,
@@ -48,6 +49,7 @@ export const getStudents = async (req, res) => {
             course,
             motherName,
             motherPhone,
+            studentClass,
             fee
         }, { new: true });
 
@@ -134,3 +136,33 @@ export const countCourse = async (req, res) => {
         res.status(400).send({message: "Error in counting courses"});
     }
 }
+
+// Get all unique student classes
+export const getAllStudentClass = async (req, res) => {
+    try {
+        const classes = await student.distinct("studentClass"); // returns unique values
+        res.status(200).send(classes);
+    } catch (error) {
+        console.error("Error in fetching student classes:", error);
+        res.status(400).send({ message: "Error in fetching student classes" });
+    }
+};
+// Get all students by class
+export const getStudentsByClass = async (req, res) => {
+    try {
+        const { studentClass } = req.params; // ama req.query haddii aad rabto ?studentClass=Class 1
+
+        const studentsInClass = await student.find({ studentClass });
+
+        if (studentsInClass.length === 0) {
+            return res.status(404).send({ message: "No students found in this class" });
+        }
+
+        res.status(200).send(studentsInClass);
+
+    } catch (error) {
+        console.error("Error in fetching students by class:", error);
+        res.status(400).send({ message: "Error in fetching students by class" });
+    }
+};
+

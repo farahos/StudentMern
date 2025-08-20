@@ -80,6 +80,7 @@ const ViewStudent = () => {
       "Course": student.course,
       "Mother's Name": student.motherName,
       "Mother's Phone": student.motherPhone,
+      "Class": student.studentClass,
       "Fee": student.fee,
       "Registration Date": new Date(student.dateRegistration).toLocaleDateString()
     }));
@@ -145,6 +146,7 @@ const ViewStudent = () => {
                 <th className="p-3 text-left border-b">Course</th>
                 <th className="p-3 text-left border-b">Mother's Name</th>
                 <th className="p-3 text-left border-b">Mother's Phone</th>
+                <th className="p-3 text-left border-b">Class</th>
                 <th className="p-3 text-left border-b">Fee</th>
                 <th className="p-3 text-left border-b">Registration Date</th>
               </tr>
@@ -164,6 +166,7 @@ const ViewStudent = () => {
                     <td className="p-3 border-b">{student.course}</td>
                     <td className="p-3 border-b">{student.motherName}</td>
                     <td className="p-3 border-b">{student.motherPhone}</td>
+                    <td className="p-3 border-b">{student.studentClass}</td>
                     <td className="p-3 border-b">${student.fee}</td>
                     <td className="p-3 border-b">
                       {new Date(student.dateRegistration).toLocaleDateString()}

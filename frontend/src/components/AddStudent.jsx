@@ -21,6 +21,7 @@ const AddStudent = () => {
     course: courses[0], // Default to first course
     motherName: "",
     motherPhone: "",
+    studentClass: "",
     fee: "",
     dateRegistration: new Date().toISOString().split('T')[0] // Default to today
   });
@@ -74,6 +75,7 @@ const AddStudent = () => {
         course: courses[0],
         motherName: "",
         motherPhone: "",
+        studentClass: "",
         fee: "",
         dateRegistration: new Date().toISOString().split('T')[0]
       });
@@ -92,6 +94,7 @@ const AddStudent = () => {
       course: student.course,
       motherName: student.motherName,
       motherPhone: student.motherPhone,
+      studentClass: student.studentClass,
       fee: student.fee,
       dateRegistration: student.dateRegistration.split('T')[0]
     });
@@ -221,6 +224,16 @@ const AddStudent = () => {
               className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-400 focus:outline-none"
               required
             />
+            <input
+              type="text"
+              name="studentClass"
+              placeholder="Class"
+              value={student.studentClass}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+              required
+            />
+            
             <div className="relative">
               <span className="absolute left-3 top-3 text-gray-500">$</span>
               <input

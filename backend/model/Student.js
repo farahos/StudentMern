@@ -7,8 +7,7 @@ const studentSchema = new mongoose.Schema({
   course: { type: String, required: true},
   motherName: { type: String, required: true},
   motherPhone: { type: String, required: true},
-  // StudentClass: { type: String, required: true},
-
+  studentClass: { type: String, required: true},
   fee: { type: Number, required: true},
   dateRegistration: { type: Date, default: Date.now }
 });

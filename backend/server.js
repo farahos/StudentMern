@@ -5,6 +5,7 @@ import { registerUser } from './controller/UserController.js';
 import userRouter from './routes/UserRoute.js';
 import studentRouter from './routes/StudentRoute.js';
 import cors from 'cors';
+import attendanceRouter from './routes/attendanceRouter.js';
 
 
 
@@ -18,6 +19,8 @@ app.use(cors({
 app.use(express.json());
 app.use('/api/user', userRouter);
 app.use('/api/student', studentRouter);
+app.use('/api/attendance', attendanceRouter);
+
 conectBD();
 app.listen(PORT ,()=>{
     console.log(`Server is running on port ${PORT}`);

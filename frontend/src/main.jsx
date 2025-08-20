@@ -63,6 +63,8 @@ import Login from './pages/Login.jsx';
 import Dashboard from './components/Dashboard.jsx';
 import AddStudent from './components/AddStudent.jsx';
 import ViewStudent from './components/ViewStudent.jsx';
+import Attendance from './components/Attendance.jsx';
+import AbsentStudentsList from './components/AbsentStudentsList.jsx';
 
 
 
@@ -79,9 +81,12 @@ const router = createBrowserRouter([
         { path: '/dashboard', 
           element: <Dashboard /> },
          { path: '/view-student', 
-          element: <ViewStudent /> }
+          element: <ViewStudent /> },
+          { path: '/attendance', 
+          element: <Attendance /> },
+          { path: '/absent-students', 
+          element: <AbsentStudentsList /> },
 
-      
     ]
   
   }
