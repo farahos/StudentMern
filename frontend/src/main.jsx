@@ -65,6 +65,7 @@ import AddStudent from './components/AddStudent.jsx';
 import ViewStudent from './components/ViewStudent.jsx';
 import Attendance from './components/Attendance.jsx';
 import AbsentStudentsList from './components/AbsentStudentsList.jsx';
+import Bills from './components/Bills.jsx';
 
 
 
@@ -86,6 +87,8 @@ const router = createBrowserRouter([
           element: <Attendance /> },
           { path: '/absent-students', 
           element: <AbsentStudentsList /> },
+          { path: '/bills', 
+          element: <Bills /> }
 
     ]
   

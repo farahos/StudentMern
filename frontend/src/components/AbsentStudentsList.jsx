@@ -97,7 +97,7 @@ const AbsentStudentsList = () => {
                   <tr key={student._id}>
                     <td className="px-6 py-4 whitespace-nowrap">{student.studentName}</td>
                     <td className="px-6 py-4 whitespace-nowrap">{student.studentClass}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{student.studentPhone}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{student.motherPhone}</td>
                   </tr>
                 ))
               )}
