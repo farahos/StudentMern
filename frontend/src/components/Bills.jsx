@@ -14,7 +14,7 @@ const Bills = () => {
   const fetchBills = async () => {
     try {
       setLoading(true);
-      const { data } = await axios.get("/api/bills");
+      const { data } = await axios.get("https://studentmern.onrender.com/api/bills");
       setBills(data);
       setLoading(false);
     } catch (error) {
@@ -31,7 +31,7 @@ const Bills = () => {
   // Mark as Paid
   const markAsPaid = async (billId) => {
     try {
-      await axios.put(`/api/bills/${billId}/pay`);
+      await axios.put(`https://studentmern.onrender.com/api/bills/${billId}/pay`);
       toast.success("Marked as Paid");
       fetchBills();
     } catch (error) {
