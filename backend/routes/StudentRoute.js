@@ -1,5 +1,5 @@
 import express from 'express';
-import { addStudent, countCourse, countFee, countStudents, deleteStudent, getAllStudentClass, getStudents, getStudentsByClass, updateStudent } from '../controller/StudentController.js';
+import { addStudent, countCourse, countFee, countStudents, deleteStudent, getAllStudentClass, getStudents, getStudentsByClass, getStudentsWithBillStatus, updateStudent } from '../controller/StudentController.js';
 
 
 const studentRouter = express.Router();
@@ -12,6 +12,8 @@ studentRouter.get('/countFee', countFee);
 studentRouter.get('/countCourse', countCourse);  // Add the new route
 studentRouter.get("/studentClass", getAllStudentClass);
 studentRouter.get("/class/:studentClass", getStudentsByClass);
+studentRouter.get("/students-with-bills", getStudentsWithBillStatus);
+
 
 
 export default studentRouter;

@@ -166,3 +166,35 @@ export const getStudentsByClass = async (req, res) => {
     }
 };
 
+// biils 
+export const getStudentsWithBillStatus = async (req, res) => {
+  try {
+    const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
+    const studentsList = await student.find();
+
+    const result = await Promise.all(
+      studentsList.map(async (stud) => {
+        const bill = await Bill.findOne({
+          student: stud._id,
+          month: currentMonth
+        });
+
+        return {
+          _id: stud._id,
+          studentName: stud.studentName,
+          studentClass: stud.studentClass,
+          fee: stud.fee,
+          billStatus: bill ? bill.status || "Unpaid" : "No Bill",
+         month: bill ? bill.month : null   // ku dar month
+        };
+      })
+    );
+
+    res.status(200).send(result);
+  } catch (error) {
+    console.error("Error in fetching students with bill status:", error);
+    res.status(400).send({ message: "Error in fetching students with bill status" });
+  }
+};
+
+
