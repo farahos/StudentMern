@@ -186,8 +186,10 @@ export const getStudentsWithBillStatus = async (req, res) => {
           studentClass: stud.studentClass,
           fee: stud.fee,
           billStatus: bill ? bill.status : "Unpaid",
-          month: bill ? bill.month : null   // ku dar month
+          month: bill ? bill.month : currentMonth
+
         };
+        
       })
     );
 
