@@ -185,8 +185,8 @@ export const getStudentsWithBillStatus = async (req, res) => {
           studentName: stud.studentName,
           studentClass: stud.studentClass,
           fee: stud.fee,
-          billStatus: bill ? bill.status || "Unpaid" : "No Bill",
-         month: bill ? bill.month : null   // ku dar month
+          billStatus: bill ? bill.status : "Unpaid",
+          month: bill ? bill.month : null   // ku dar month
         };
       })
     );
