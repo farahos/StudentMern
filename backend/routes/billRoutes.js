@@ -1,5 +1,6 @@
 import express from "express";
-import { getBills, markAsPaid } from "../controller/billController.js";
+import { getBills, markAsPaid } from "../controller/billController";
+
 
 const router = express.Router();
 
