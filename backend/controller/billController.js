@@ -1,4 +1,4 @@
-import Bill from "../model/Bill";
+import Bill from "../model/Bill.js";
 
 export const getBills = async (req, res) => {
   try {
