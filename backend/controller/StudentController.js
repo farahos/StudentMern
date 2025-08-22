@@ -1,4 +1,3 @@
-import Bill from '../model/Bill.js';
 import student from '../model/Student.js';
 
 export const addStudent = async (req, res) => {
@@ -166,38 +165,4 @@ export const getStudentsByClass = async (req, res) => {
         res.status(400).send({ message: "Error in fetching students by class" });
     }
 };
-
-// biils 
-export const getStudentsWithBillStatus = async (req, res) => {
-  try {
-    const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
-    const studentsList = await student.find();
-
-    const result = await Promise.all(
-      studentsList.map(async (stud) => {
-        const bill = await Bill.findOne({
-          student: stud._id,
-          month: currentMonth
-        });
-
-        return {
-          _id: stud._id,
-          studentName: stud.studentName,
-          studentClass: stud.studentClass,
-          fee: stud.fee,
-          billStatus: bill ? bill.status : "Unpaid",
-          month: bill ? bill.month : currentMonth
-
-        };
-        
-      })
-    );
-
-    res.status(200).send(result);
-  } catch (error) {
-    console.error("Error in fetching students with bill status:", error);
-    res.status(400).send({ message: "Error in fetching students with bill status" });
-  }
-};
-
 
