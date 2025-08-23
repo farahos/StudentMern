@@ -83,7 +83,7 @@ const Attendance = () => {
         course: student.course || "General",
       }));
 
-      await axios.post("https://studentmern.onrender.com    /api/attendance/mark-bulk", {
+      await axios.post("https://studentmern.onrender.com/api/attendance/mark-bulk", {
         classId: selectedClass,
         date: attendanceDate,
         attendanceRecords,
