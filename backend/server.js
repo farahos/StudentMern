@@ -9,6 +9,7 @@ import attendanceRouter from './routes/attendanceRouter.js';
 import Bill from './model/Bill.js';
 import billRoutes from './routes/billRoutes.js';
 import nodeCron from 'node-cron';
+import student from './model/Student.js';
 
 
 
@@ -21,18 +22,21 @@ app.use(cors({
 }));
 // 📌 Cron Job: one month
 nodeCron.schedule("0 0 1 * *", async () => {
-  const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000); // 30 days ago
-  try {
-    const bills = await Bill.find({ status: "Paid", lastPaidAt: { $lte: oneMonthAgo } });
-    for (let bill of bills) {
-      bill.status = "Unpaid";
-      await bill.save();
-      console.log(`🔄 Bill ${bill._id} reverted back to Unpaid after one month`);
+  const students = await student.find();
+  const currentMonth = new Date().toISOString().slice(0,7);
+
+  for (let stud of students) {
+    const existing = await Bill.findOne({ student: stud._id, month: currentMonth });
+    if (!existing) {
+      await Bill.create({
+        student: stud._id,
+        amount: stud.fee,
+        month: currentMonth
+      });
     }
-  } catch (error) {
-    console.error("Error in cron job:", error);
   }
 });
+
 app.use(express.json());
 app.use('/api/user', userRouter);
 app.use('/api/student', studentRouter);

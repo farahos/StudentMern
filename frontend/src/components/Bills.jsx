@@ -80,7 +80,7 @@ const Bills = () => {
           onChange={(e) => setStatusFilter(e.target.value)}
           className="border p-2 rounded"
         >
-          <option value="All">All Status</option>
+          <option value="All">All</option>
           <option value="Paid">Paid</option>
           <option value="Unpaid">Unpaid</option>
         </select>
