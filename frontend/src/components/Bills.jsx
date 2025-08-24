@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { format, isValid } from "date-fns";
 
 const Bills = () => {
   const [bills, setBills] = useState([]);
   const [loading, setLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState("All");
-  // const [monthFilter, setMonthFilter] = useState(format(new Date(), "yyyy-MM"));
   const [searchTerm, setSearchTerm] = useState("");
 
   // Fetch all bills
@@ -29,9 +27,13 @@ const Bills = () => {
   }, []);
 
   // Mark as Paid
-  const markAsPaid = async (billId) => {
+  const markAsPaid = async (studentId) => {
     try {
-      await axios.put(`https://studentmern.onrender.com/api/bills/${billId}/pay`);
+      // Hel bill id ee student-ka
+      const studentBill = bills.find(b => b._id === studentId);
+      if (!studentBill || studentBill.billStatus !== "Unpaid") return;
+
+      await axios.put(`https://studentmern.onrender.com/api/bills/${studentBill._id}/pay`);
       toast.success("Marked as Paid");
       fetchBills();
     } catch (error) {
@@ -42,21 +44,12 @@ const Bills = () => {
 
   // Filtered bills
   const filteredBills = bills
-    .filter((bill) => {
+    .filter(bill => {
       if (statusFilter === "All") return true;
-      return bill.status === statusFilter;
+      return bill.billStatus === statusFilter;
     })
-    // .filter((bill) => {
-    //   if (!monthFilter) return true;
-    //   const date = new Date(bill.createdAt);
-    //   if (!bill.createdAt || !isValid(date)) return false; // safe check
-    //   const billMonth = format(date, "yyyy-MM");
-    //   return billMonth === monthFilter;
-    // })
-    .filter((bill) =>
-      bill.student?.studentName
-        ?.toLowerCase()
-        .includes(searchTerm.toLowerCase())
+    .filter(bill =>
+      bill.studentName?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
   // Total amount
@@ -83,13 +76,8 @@ const Bills = () => {
           <option value="All">All</option>
           <option value="Paid">Paid</option>
           <option value="Unpaid">Unpaid</option>
+          <option value="No Bill">No Bill</option>
         </select>
-        {/* <input
-          type="month"
-          value={monthFilter}
-          onChange={(e) => setMonthFilter(e.target.value)}
-          className="border p-2 rounded"
-        /> */}
       </div>
 
       {loading ? (
@@ -108,22 +96,19 @@ const Bills = () => {
             </thead>
             <tbody>
               {filteredBills.map((bill) => (
-                <tr
-                  key={bill._id}
-                  className="hover:bg-gray-100 transition-colors"
-                >
-                  <td className="border p-2">{bill.student?.studentName}</td>
-                  <td className="border p-2">{bill.student?.studentClass}</td>
+                <tr key={bill._id} className="hover:bg-gray-100 transition-colors">
+                  <td className="border p-2">{bill.studentName}</td>
+                  <td className="border p-2">{bill.studentClass}</td>
                   <td className="border p-2">${bill.amount}</td>
                   <td
                     className={`border p-2 font-semibold ${
-                      bill.status === "Paid" ? "text-green-600" : "text-red-600"
+                      bill.billStatus === "Paid" ? "text-green-600" : "text-red-600"
                     }`}
                   >
-                    {bill.status}
+                    {bill.billStatus}
                   </td>
                   <td className="border p-2">
-                    {bill.status === "Unpaid" ? (
+                    {bill.billStatus === "Unpaid" ? (
                       <button
                         onClick={() => markAsPaid(bill._id)}
                         className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
