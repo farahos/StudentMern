@@ -14,7 +14,7 @@ const Bills = () => {
   const fetchBills = async () => {
     try {
       setLoading(true);
-      const { data } = await axios.get("https://studentmern.onrender.com/api/student/students-with-bills");
+      const { data } = await axios.get("https://studentmern.onrender.com/api/bills");
       setBills(data);
       setLoading(false);
     } catch (error) {

@@ -14,7 +14,4 @@ studentRouter.get("/studentClass", getAllStudentClass);
 studentRouter.get("/class/:studentClass", getStudentsByClass);
 studentRouter.get("/students-with-bills", getStudentsWithBillStatus);
 
-
-
-
 export default studentRouter;
