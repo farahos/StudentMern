@@ -9,6 +9,7 @@ import attendanceRouter from './routes/attendanceRouter.js';
 import Bill from './model/Bill.js';
 import billRoutes from './routes/billRoutes.js';
 import nodeCron from 'node-cron';
+import student from './model/Student.js';
 
 
 
@@ -19,28 +20,18 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   credentials: true
 }));
-
-// 📌 Cron Job: Create new bills on 1st day of every month
-nodeCron.schedule("0 0 1 * *", async () => {
+// 📌 Cron Job: 10 daqiiqo kasta hubi bills Paid > 10 daqiiqo → Unpaid
+nodeCron.schedule("*/10 * * * *", async () => {
+  const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000); // 10 minutes ago
   try {
-    const currentMonth = new Date().toISOString().slice(0, 7); // e.g., "2025-09"
-    const students = await Student.find();
-
-    for (let stud of students) {
-      // hubi haddii bill horey loo sameeyay bishaan
-      const existingBill = await Bill.findOne({ student: stud._id, month: currentMonth });
-      if (!existingBill) {
-        const newBill = new Bill({
-          student: stud._id,
-          amount: stud.fee,   // isticmaal fee ardayga
-          month: currentMonth,
-        });
-        await newBill.save();
-        console.log(`✅ Bill created for ${stud.studentName} - ${currentMonth}`);
-      }
+    const bills = await Bill.find({ status: "Paid", lastPaidAt: { $lte: tenMinutesAgo } });
+    for (let bill of bills) {
+      bill.status = "Unpaid";
+      await bill.save();
+      console.log(`🔄 Bill ${bill._id} reverted back to Unpaid after 10 minutes`);
     }
   } catch (error) {
-    console.error("❌ Error in cron job:", error);
+    console.error("Error in cron job:", error);
   }
 });
 
