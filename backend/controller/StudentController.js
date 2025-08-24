@@ -1,3 +1,4 @@
+import Bill from '../model/Bill.js';
 import student from '../model/Student.js';
 
 export const addStudent = async (req, res) => {
