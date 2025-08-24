@@ -16,13 +16,9 @@ const billSchema = new mongoose.Schema({
     default: "Unpaid",
   },
   lastPaidAt: {
-    type: Date,
+    type: Date, // goorta ugu dambeysay ee la "paid" dhahay
   },
-  month: {
-    type: String, // YYYY-MM
-    required: true,
-  }
-}, { timestamps: true });
+});
 
 const Bill = mongoose.model("Bill", billSchema);
 export default Bill;
