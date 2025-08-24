@@ -21,30 +21,31 @@ import student from "../model/Student.js";
 
 export const getBills = async (req, res) => {
   try {
-    const studentsList = await Student.find();
+   
+    const studentsList = await student.find();
 
     const result = await Promise.all(
       studentsList.map(async (stud) => {
-        const bill = await Bill.findOne({ student: stud._id });
+        const bill = await Bill.findOne({
+          student: stud._id
+        });
+
         return {
           _id: stud._id,
           studentName: stud.studentName,
           studentClass: stud.studentClass,
           fee: stud.fee,
-          billStatus: bill ? bill.status : "No Bill",
-          amount: bill ? bill.amount : stud.fee, // haddii bill ma jiro, fee-ka student
-          lastPaidAt: bill ? bill.lastPaidAt : null,
+          billStatus: bill ? bill.status || "Unpaid" : "No Bill"
         };
       })
     );
 
-    res.status(200).json(result);
+    res.status(200).send(result);
   } catch (error) {
-    console.error(error);
-    res.status(400).json({ message: "Error fetching students with bill status" });
+    console.error("Error in fetching students with bill status:", error);
+    res.status(400).send({ message: "Error in fetching students with bill status" });
   }
 };
-
 
 // ✅ Mark bill as Paid
 export const markAsPaid = async (req, res) => {
