@@ -7,7 +7,7 @@ import studentRouter from './routes/StudentRoute.js';
 import cors from 'cors';
 import attendanceRouter from './routes/attendanceRouter.js';
 import Bill from './model/Bill.js';
-import billRoutes from './routes/billRoutes.js';
+import billRoutes from "./routes/billRoutes.js"
 import nodeCron from 'node-cron';
 import student from './model/Student.js';
 
@@ -20,6 +20,16 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   credentials: true
 }));
+
+
+app.use(express.json());
+app.use('/api/user', userRouter);
+app.use('/api/student', studentRouter);
+app.use('/api/attendance', attendanceRouter);
+app.use("/api/bills", billRoutes);
+
+
+
 // 📌 Cron Job: 10 daqiiqo kasta hubi bills Paid > 10 daqiiqo → Unpaid
 nodeCron.schedule("*/10 * * * *", async () => {
   const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000); // 10 minutes ago
@@ -34,13 +44,6 @@ nodeCron.schedule("*/10 * * * *", async () => {
     console.error("Error in cron job:", error);
   }
 });
-
-app.use(express.json());
-app.use('/api/user', userRouter);
-app.use('/api/student', studentRouter);
-app.use('/api/attendance', attendanceRouter);
-app.use('/api/bills', billRoutes);
-
 conectBD();
 app.listen(PORT ,()=>{
     console.log(`Server is running on port ${PORT}`);
