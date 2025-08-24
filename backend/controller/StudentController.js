@@ -4,7 +4,7 @@ import student from '../model/Student.js';
 export const addStudent = async (req, res) => {
     // add a new student
     try {
-        const { studentName, studentPhone, course, motherName, motherPhone, studentClass, fee } = req.body;
+        const { studentName, studentPhone, course, motherName, motherPhone, studentClass,fee } = req.body;
 
         const newStudent = new student({
             studentName,
@@ -17,6 +17,13 @@ export const addStudent = async (req, res) => {
         });
 
         await newStudent.save();
+         // Create first bill for current month
+        const currentMonth = new Date().toISOString().slice(0, 7);
+        await Bill.create({
+            student: newStudent._id,
+            month: currentMonth,
+            amount: fee
+        });
         res.status(201).send({ message: "Student added successfully" });
         
     } catch (error) {
@@ -42,7 +49,7 @@ export const getStudents = async (req, res) => {
     // update a student
     try {
         const { id } = req.params;
-        const { studentName, studentPhone, course, motherName, motherPhone, studentClass, fee } = req.body;
+        const { studentName, studentPhone, course, motherName, motherPhone, studentClass ,fee } = req.body;
 
         const updatedStudent = await student.findByIdAndUpdate(id, {
             studentName,
@@ -137,7 +144,6 @@ export const countCourse = async (req, res) => {
         res.status(400).send({message: "Error in counting courses"});
     }
 }
-
 // Get all unique student classes
 export const getAllStudentClass = async (req, res) => {
     try {
@@ -166,7 +172,6 @@ export const getStudentsByClass = async (req, res) => {
         res.status(400).send({ message: "Error in fetching students by class" });
     }
 };
-
 
 // biils 
 export const getStudentsWithBillStatus = async (req, res) => {
