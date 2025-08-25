@@ -3,21 +3,24 @@ import Bill from "../model/Bill.js";
 // Get Bills
 export const getBills = async (req, res) => {
   try {
-    const bills = await Bill.find().populate("student"); // ✅ student fee waa imanaya
+    const bills = await Bill.find()
+      .populate("student", "studentName studentClass fee") // fee sax
+      .sort({ createdAt: -1 });
+
     const result = bills.map(bill => ({
       _id: bill._id,
-      studentName: bill.student.studentName,
-      studentClass: bill.student.studentClass,
-      fee: bill.student.fee, // ✅ fee mar kasta student table ka imaanayo
+      studentName: bill.student?.studentName || "N/A",
+      studentClass: bill.student?.studentClass || "N/A",
+      fee: bill.student?.fee || 0, // ✅ fee hadda student ka imanaya
       status: bill.status,
       lastPaidAt: bill.lastPaidAt,
     }));
+
     res.json(result);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
-
 // Mark as Paid
 export const markAsPaid = async (req, res) => {
   try {
@@ -32,6 +35,7 @@ export const markAsPaid = async (req, res) => {
     bill.lastPaidAt = new Date();
     await bill.save();
 
+    // populate student info si fee hadda loo helo
     bill = await bill.populate("student", "studentName studentClass fee");
 
     res.status(200).json({ message: "Bill marked as Paid successfully", bill });
