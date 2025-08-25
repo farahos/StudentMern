@@ -103,6 +103,7 @@ const Bills = () => {
                 <th className="border p-2">Class</th>
                 <th className="border p-2">Amount</th>
                 <th className="border p-2">Status</th>
+            
                 <th className="border p-2">Action</th>
               </tr>
             </thead>
