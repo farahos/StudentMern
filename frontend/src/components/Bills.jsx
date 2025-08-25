@@ -114,7 +114,7 @@ const Bills = () => {
                 >
                   <td className="border p-2">{bill.student?.studentName}</td>
                   <td className="border p-2">{bill.student?.studentClass}</td>
-                  <td className="border p-2">${bill.amount?.fee}</td>
+                  <td className="border p-2">${bill.student?.fee}</td>
                   <td
                     className={`border p-2 font-semibold ${
                       bill.status === "Paid" ? "text-green-600" : "text-red-600"
