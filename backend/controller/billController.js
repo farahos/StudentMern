@@ -1,26 +1,19 @@
 import Bill from "../model/Bill.js";
-
+import Student from "../model/Student.js"
 // Get Bills
 export const getBills = async (req, res) => {
   try {
-    const bills = await Bill.find()
-      .populate("student", "studentName studentClass fee")
-      .sort({ createdAt: -1 });
-
-    const seen = new Set();
-    const uniqueBills = [];
-
-    for (const bill of bills) {
-      if (!bill.student) continue;
-      if (!seen.has(bill.student._id.toString())) {
-        seen.add(bill.student._id.toString());
-        uniqueBills.push(bill);
-      }
-    }
-
-    res.status(200).json(uniqueBills);
+    const bills = await Bill.find().populate("student"); // ✅ student fee waa imanaya
+    const result = bills.map(bill => ({
+      _id: bill._id,
+      studentName: bill.student.studentName,
+      studentClass: bill.student.studentClass,
+      fee: bill.student.fee, // ✅ fee mar kasta student table ka imaanayo
+      status: bill.status,
+      lastPaidAt: bill.lastPaidAt,
+    }));
+    res.json(result);
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: error.message });
   }
 };
