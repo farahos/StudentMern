@@ -3,7 +3,7 @@ import Bill from "../model/Bill.js";
 export const getBills = async (req, res) => {
   try {
     const bills = await Bill.find()
-      .populate("student", "studentName studentClass")
+      .populate("student", "studentName studentClass fee")
       .sort({ createdAt: -1 }); // newest bill first
 
     const seen = new Set();
