@@ -1,5 +1,5 @@
 import Bill from "../model/Bill.js";
-import Student from "../model/Student.js"
+
 // Get Bills
 export const getBills = async (req, res) => {
   try {
