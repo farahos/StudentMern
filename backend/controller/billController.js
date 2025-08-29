@@ -1,4 +1,4 @@
-// import Bill from "../model/Bill.js";
+import Bill from "../model/Bill.js";
 import Student from "../model/Student.js";
 
 // Get Bills

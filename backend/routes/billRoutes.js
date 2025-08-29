@@ -1,4 +1,4 @@
-// import express from "express";
+import express from "express";
 import { getBills, getStudentsWithBillStatus, markAsPaid } from "../controller/billController.js";
 
 const router = express.Router();
