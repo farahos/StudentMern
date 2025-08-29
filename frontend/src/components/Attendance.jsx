@@ -1,197 +1,217 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { FaCheckSquare } from "react-icons/fa";
 
 const Attendance = () => {
-  const [classes, setClasses] = useState([]);
-  const [selectedClass, setSelectedClass] = useState("");
   const [students, setStudents] = useState([]);
-  const [attendance, setAttendance] = useState({});
-  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  const [classes, setClasses] = useState([]);
+  const [attendanceDate, setAttendanceDate] = useState(new Date().toISOString().split("T")[0]);
+  const [selectedClass, setSelectedClass] = useState("");
+  const [attendanceStatus, setAttendanceStatus] = useState({});
   const [loading, setLoading] = useState(false);
-  const [existingAttendanceId, setExistingAttendanceId] = useState(null); // track if attendance exists
 
-  // Fetch all classes
+  // Fetch all unique classes
   useEffect(() => {
     const fetchClasses = async () => {
+
       try {
-        const res = await axios.get("http://localhost:5000/api/classes");
-        setClasses(res.data);
-      } catch (err) {
-        console.error("Error fetching classes:", err);
+        const response = await axios.get("https://studentmern.onrender.com/api/student/studentClass");
+        setClasses(response.data);
+      } catch (error) {
+        console.error("Error fetching classes:", error);
+        toast.error("Failed to load classes");
       }
     };
     fetchClasses();
   }, []);
 
-  // Fetch students + existing attendance when class/date changes
+  // Fetch students when class is selected
   useEffect(() => {
-    if (selectedClass && date) {
-      const fetchData = async () => {
+    const fetchStudents = async () => {
+      if (!selectedClass) return;
+
+      try {
         setLoading(true);
-        try {
-          // Fetch students
-          const res = await axios.get(
-            `http://localhost:5000/api/students/class/${selectedClass}`
-          );
-          setStudents(res.data);
-
-          // Fetch attendance for class & date
-          const attRes = await axios.get(
-            `http://localhost:5000/api/attendance/${selectedClass}/${date}`
-          );
-
-          if (attRes.data && attRes.data._id) {
-            // Attendance exists → load it
-            const attMap = {};
-            attRes.data.records.forEach((r) => {
-              attMap[r.student] = r.status;
-            });
-            setAttendance(attMap);
-            setExistingAttendanceId(attRes.data._id);
-          } else {
-            // No attendance yet
-            const attMap = {};
-            res.data.forEach((student) => {
-              attMap[student._id] = "Present";
-            });
-            setAttendance(attMap);
-            setExistingAttendanceId(null);
-          }
-        } catch (err) {
-          console.error("Error fetching data:", err);
-          toast.error("Failed to fetch attendance data.");
-        } finally {
-          setLoading(false);
-        }
-      };
-      fetchData();
-    }
-  }, [selectedClass, date]);
-
-  const handleMark = (studentId, status) => {
-    setAttendance((prev) => ({ ...prev, [studentId]: status }));
-  };
-
-  const handleMarkAll = (status) => {
-    const newAttendance = {};
-    students.forEach((s) => {
-      newAttendance[s._id] = status;
-    });
-    setAttendance(newAttendance);
-  };
-
-  const handleSubmit = async () => {
-    const records = students.map((s) => ({
-      student: s._id,
-      status: attendance[s._id] || "Present",
-    }));
-
-    try {
-      if (existingAttendanceId) {
-        // Update existing attendance
-        await axios.put(
-          `http://localhost:5000/api/attendance/${existingAttendanceId}`,
-          { classId: selectedClass, date, records }
+        const response = await axios.get(`https://studentmern.onrender.com/api/student/class/${selectedClass}`);
+        const sortedStudents = [...response.data].sort((a, b) =>
+          a.studentName.localeCompare(b.studentName)
         );
-        toast.success("Attendance updated successfully ✅");
-      } else {
-        // Create new attendance
-        await axios.post("http://localhost:5000/api/attendance", {
-          classId: selectedClass,
-          date,
-          records,
+
+        setStudents(sortedStudents);
+        const statusObj = {};
+        sortedStudents.forEach((student) => {
+          statusObj[student._id] = "present";
         });
-        toast.success("Attendance saved successfully ✅");
+        setAttendanceStatus(statusObj);
+      } catch (error) {
+        console.error("Error fetching students:", error);
+        toast.error("Failed to load students");
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error("Error saving attendance:", err);
-      toast.error("Failed to save attendance ❌");
+    };
+
+    fetchStudents();
+  }, [selectedClass]);
+
+  const handleAttendanceChange = (studentId, status) => {
+    setAttendanceStatus((prev) => ({
+      ...prev,
+      [studentId]: status,
+    }));
+  };
+
+  const handleSelectAll = (status) => {
+    const updatedStatus = {};
+    students.forEach((student) => {
+      updatedStatus[student._id] = status;
+    });
+    setAttendanceStatus(updatedStatus);
+  };
+
+  const presentCount = Object.values(attendanceStatus).filter(
+    (status) => status === "present"
+  ).length;
+
+  const submitAttendance = async () => {
+    try {
+      const attendanceRecords = students.map((student) => ({
+        studentId: student._id,
+        date: attendanceDate,
+        status: attendanceStatus[student._id] || "present",
+        course: student.course || "General",
+      }));
+
+      await axios.post("https://studentmern.onrender.com/api/attendance/mark-bulk", {
+        classId: selectedClass,
+        date: attendanceDate,
+        attendanceRecords,
+      });
+
+      toast.success("✅ Attendance submitted successfully!");
+    } catch (error) {
+      console.error("Error submitting attendance:", error);
+      toast.error("Failed to submit attendance");
     }
   };
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <h2 className="text-2xl font-bold mb-4">Attendance</h2>
+    <div className="p-6 max-w-6xl mx-auto bg-gradient-to-br from-gray-50 to-gray-100 shadow-lg rounded-2xl">
+      {/* Title */}
+      <h2 className="text-3xl font-extrabold text-gray-800 mb-6 flex items-center gap-3">
+        <FaCheckSquare className="text-green-500 text-2xl" /> Class Attendance
+      </h2>
 
-      {/* Controls */}
-      <div className="flex gap-4 mb-4">
-        <select
-          value={selectedClass}
-          onChange={(e) => setSelectedClass(e.target.value)}
-          className="p-2 border rounded"
-        >
-          <option value="">Select Class</option>
-          {classes.map((cls) => (
-            <option key={cls._id} value={cls._id}>
-              {cls.name}
-            </option>
-          ))}
-        </select>
-        <input
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          className="p-2 border rounded"
-        />
+      {/* Top Controls */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-1">Select Class</label>
+          <select
+            value={selectedClass}
+            onChange={(e) => setSelectedClass(e.target.value)}
+            className="w-full border border-gray-300 px-4 py-2 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+          >
+            <option value="">Select Class</option>
+            {classes.map((cls) => (
+              <option key={cls} value={cls}>
+                {cls}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-1">Attendance Date</label>
+          <input
+            type="date"
+            value={attendanceDate}
+            onChange={(e) => setAttendanceDate(e.target.value)}
+            className="w-full border border-gray-300 px-4 py-2 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+          />
+        </div>
+
+        <div className="flex items-end">
+          <button
+            onClick={() => handleSelectAll("")}
+            disabled={students.length === 0}
+            className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 rounded-xl shadow-md hover:scale-[1.02] transition disabled:opacity-50"
+          >
+            ✅ Mark All 
+          </button>
+        </div>
+
+        <div className="flex items-end">
+          <button
+            onClick={submitAttendance}
+            disabled={!selectedClass || loading}
+            className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-2 rounded-xl shadow-md hover:scale-[1.02] transition disabled:opacity-50"
+          >
+            {loading ? "Processing..." : "💾 Save Attendance"}
+          </button>
+        </div>
       </div>
 
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-        students.length > 0 && (
-          <>
-            <div className="mb-4 flex gap-2">
-              <button
-                onClick={() => handleMarkAll("Present")}
-                className="px-4 py-2 bg-green-500 text-white rounded"
-              >
-                Mark All Present
-              </button>
-              <button
-                onClick={() => handleMarkAll("Absent")}
-                className="px-4 py-2 bg-red-500 text-white rounded"
-              >
-                Mark All Absent
-              </button>
-            </div>
+      {/* Stats */}
+      <div className="mb-4 text-base font-semibold text-gray-700">
+      Present Students: <span className="text-green-600">{presentCount}</span> /{" "}
+        {students.length}
+      </div>
 
-            {/* Students Table */}
-            <table className="w-full border">
-              <thead>
-                <tr className="bg-gray-200">
-                  <th className="p-2 border">Name</th>
-                  <th className="p-2 border">Status</th>
+      {/* Table */}
+      {loading ? (
+        <div className="text-center py-8">⏳ Loading students...</div>
+      ) : selectedClass ? (
+        <div className="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
+          <table className="min-w-full text-sm">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="p-3 text-left border-b">#</th>
+                <th className="p-3 text-left border-b">Student Name</th>
+                <th className="p-3 text-left border-b">Class</th>
+                <th className="p-3 text-center border-b">Present</th>
+                <th className="p-3 text-center border-b">Absent</th>
+              </tr>
+            </thead>
+            <tbody>
+              {students.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="text-center py-4 text-gray-500">
+                    No students found in {selectedClass}
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {students.map((s) => (
-                  <tr key={s._id} className="border">
-                    <td className="p-2 border">{s.studentName}</td>
-                    <td className="p-2 border">
-                      <select
-                        value={attendance[s._id] || "Present"}
-                        onChange={(e) => handleMark(s._id, e.target.value)}
-                        className="p-1 border rounded"
-                      >
-                        <option value="Present">Present</option>
-                        <option value="Absent">Absent</option>
-                        <option value="Late">Late</option>
-                      </select>
+              ) : (
+                students.map((student, index) => (
+                  <tr key={student._id} className="hover:bg-gray-50 transition">
+                    <td className="p-3 border-b">{index + 1}</td>
+                    <td className="p-3 border-b font-medium">{student.studentName}</td>
+                    <td className="p-3 border-b">{student.studentClass}</td>
+                    <td className="p-3 border-b text-center">
+                      <input
+                        type="radio"
+                        name={`attendance-${student._id}`}
+                        checked={attendanceStatus[student._id] === "present"}
+                        onChange={() => handleAttendanceChange(student._id, "present")}
+                        className="w-5 h-5 accent-green-500 cursor-pointer transition"
+                      />
+                    </td>
+                    <td className="p-3 border-b text-center">
+                      <input
+                        type="radio"
+                        name={`attendance-${student._id}`}
+                        checked={attendanceStatus[student._id] === "absent"}
+                        onChange={() => handleAttendanceChange(student._id, "absent")}
+                        className="w-5 h-5 accent-red-500 cursor-pointer transition"
+                      />
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-
-            <button
-              onClick={handleSubmit}
-              className="mt-4 px-6 py-2 bg-blue-600 text-white rounded"
-            >
-              {existingAttendanceId ? "Update Attendance" : "Save Attendance"}
-            </button>
-          </>
-        )
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="text-center py-8 text-gray-500">📌 Please select a class to view students</div>
       )}
     </div>
   );
