@@ -15,7 +15,7 @@ const AttendanceHistory = () => {
   useEffect(() => {
     const fetchClasses = async () => {
       try {
-        const res = await axios.get("https://studentmern.onrender.com/api/classes");
+        const res = await axios.get("https://studentmern.onrender.com/api/attendance/classes");
         setClasses(res.data);
       } catch (err) {
         toast.error("Failed to load classes");
