@@ -9,7 +9,8 @@ const Dashboard = () => {
     students: [],
     totalStudents: 0,
     totalFee: 0,
-    courseCounts: []
+    courseCounts: [],
+    totalBills: 0,   // 🔹 Bill total ka
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -20,18 +21,23 @@ const Dashboard = () => {
         setLoading(true);
 
         // Fetch all data in parallel
-        const [studentsRes, countRes, feeRes, coursesRes] = await Promise.all([
+        const [studentsRes, countRes, feeRes, coursesRes, billsRes] = await Promise.all([
           axios.get("https://studentmern.onrender.com/api/student/getStudents"),
           axios.get("https://studentmern.onrender.com/api/student/countStudents"),
           axios.get("https://studentmern.onrender.com/api/student/countFee"),
-          axios.get("https://studentmern.onrender.com/api/student/countCourse")
+          axios.get("https://studentmern.onrender.com/api/student/countCourse"),
+          axios.get("https://studentmern.onrender.com/api/bills") // 🔹 soo jiid bills
         ]);
+
+        // total bills amount
+        const totalBills = billsRes.data.reduce((acc, b) => acc + (b.amount || 0), 0);
 
         setStats({
           students: studentsRes.data,
           totalStudents: countRes.data.count,
           totalFee: feeRes.data.totalFee,
-          courseCounts: coursesRes.data
+          courseCounts: coursesRes.data,
+          totalBills: totalBills
         });
 
       } catch (err) {
@@ -65,7 +71,7 @@ const Dashboard = () => {
       {loading ? (
         <div className="text-center py-8">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-2 text-gray-600">Loading students...</p>
+          <p className="mt-2 text-gray-600">Loading dashboard...</p>
         </div>
       ) : (
         <>
@@ -83,11 +89,9 @@ const Dashboard = () => {
               <p className="text-lg">Total Fees</p>
               <h2 className="text-2xl font-bold">${Number(stats.totalFee || 0).toLocaleString()}</h2>
             </div>
-            <div className="bg-purple-600 text-white rounded-lg p-4 shadow-md">
-              <p className="text-lg">Last Registered</p>
-              <h2 className="text-xl font-bold">
-                {recentStudents[0] ? recentStudents[0].studentName : "N/A"}
-              </h2>
+            <div className="bg-pink-500 text-white rounded-lg p-4 shadow-md">
+              <p className="text-lg">Total Bills</p>
+              <h2 className="text-2xl font-bold">${Number(stats.totalBills || 0).toLocaleString()}</h2>
             </div>
           </div>
 
