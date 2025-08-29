@@ -96,39 +96,71 @@ const ViewStudent = () => {
     toast.success("Excel file downloaded successfully!");
   };
 
-  // ✅ Word Export
-  const handleExportWord = async () => {
-    const doc = new Document({
-      sections: [
-        {
-          properties: {},
-          children: [
-            new Paragraph({
-              children: [new TextRun({ text: "Students List", bold: true, size: 28 })],
-            }),
-            ...filteredStudents.map(student =>
-              new Paragraph({
-                children: [
-                  new TextRun(`Name: ${student.studentName} | `),
-                  new TextRun(`Phone: ${student.studentPhone} | `),
-                  new TextRun(`Course: ${student.course} | `),
-                  new TextRun(`Mother: ${student.motherName} | `),
-                  new TextRun(`Mother Phone: ${student.motherPhone} | `),
-                  new TextRun(`Class: ${student.studentClass} | `),
-                  new TextRun(`Fee: $${student.fee} | `),
-                  new TextRun(`Reg Date: ${new Date(student.dateRegistration).toLocaleDateString()}`),
-                ],
-              })
-            ),
-          ],
-        },
+ // ✅ Word Export (Table format)
+const handleExportWord = async () => {
+  // Table header
+  const tableRows = [
+    new TableRow({
+      children: [
+        new TableCell({ children: [new Paragraph("Name")] }),
+        new TableCell({ children: [new Paragraph("Phone")] }),
+        new TableCell({ children: [new Paragraph("Course")] }),
+        new TableCell({ children: [new Paragraph("Mother's Name")] }),
+        new TableCell({ children: [new Paragraph("Mother's Phone")] }),
+        new TableCell({ children: [new Paragraph("Class")] }),
+        new TableCell({ children: [new Paragraph("Fee")] }),
+        new TableCell({ children: [new Paragraph("Reg Date")] }),
       ],
-    });
+    }),
+    // Table body (map students)
+    ...filteredStudents.map(
+      (student) =>
+        new TableRow({
+          children: [
+            new TableCell({ children: [new Paragraph(student.studentName)] }),
+            new TableCell({ children: [new Paragraph(student.studentPhone)] }),
+            new TableCell({ children: [new Paragraph(student.course)] }),
+            new TableCell({ children: [new Paragraph(student.motherName)] }),
+            new TableCell({ children: [new Paragraph(student.motherPhone)] }),
+            new TableCell({ children: [new Paragraph(student.studentClass)] }),
+            new TableCell({ children: [new Paragraph(`$${student.fee}`)] }),
+            new TableCell({
+              children: [
+                new Paragraph(
+                  new Date(student.dateRegistration).toLocaleDateString()
+                ),
+              ],
+            }),
+          ],
+        })
+    ),
+  ];
 
-    const blob = await Packer.toBlob(doc);
-    saveAs(blob, "Students_List.docx");
-    toast.success("Word file downloaded successfully!");
-  };
+  // Document with table
+  const doc = new Document({
+    sections: [
+      {
+        children: [
+          new Paragraph({
+            text: "Students List",
+            heading: "Heading1",
+          }),
+          new Table({
+            rows: tableRows,
+            width: {
+              size: 100,
+              type: "pct", // 100% width
+            },
+          }),
+        ],
+      },
+    ],
+  });
+
+  const blob = await Packer.toBlob(doc);
+  saveAs(blob, "Students_List.docx");
+  toast.success("Word file downloaded successfully!");
+};
 
   return (
     <div className="p-6 max-w-6xl mx-auto bg-white shadow-lg rounded-xl">
