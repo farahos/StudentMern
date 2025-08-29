@@ -60,6 +60,13 @@ export const getStudents = async (req, res) => {
             studentClass,
             fee
         }, { new: true });
+        // Update bill for current month
+        const currentMonth = new Date().toISOString().slice(0, 7);
+        await Bill.findOneAndUpdate(
+            { student: id, month: currentMonth },
+            { amount: fee },
+            { upsert: true }
+        );
 
         if (!updatedStudent) {
             return res.status(404).send({ message: "Student not found" });
