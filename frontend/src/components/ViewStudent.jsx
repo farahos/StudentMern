@@ -1,10 +1,11 @@
+// ViewStudent.jsx
+
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import toast from "react-hot-toast";
 import { Document, Packer, Paragraph, TextRun } from "docx";
-import { Link } from "react-router-dom";
 
 const ViewStudent = () => {
   const [students, setStudents] = useState([]);
@@ -213,9 +214,7 @@ const ViewStudent = () => {
               ) : (
                 currentStudents.map((student) => (
                   <tr key={student._id} className="hover:bg-gray-50">
-                    <Link to={`/add-student`} className="text-blue-600 hover:underline">
-                        {student.studentName}
-                      </Link>
+                    <td className="p-3 border-b">{student.studentName}</td>
                     <td className="p-3 border-b">{student.studentPhone}</td>
                     <td className="p-3 border-b">{student.course}</td>
                     <td className="p-3 border-b">{student.motherName}</td>
