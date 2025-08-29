@@ -26,7 +26,7 @@ app.use(express.json());
 app.use('/api/user', userRouter);
 app.use('/api/student', studentRouter);
 app.use('/api/attendance', attendanceRouter);
-app.use("/api/bills", billRoutes);
+// app.use("/api/bills", billRoutes);
 
 
 
