@@ -7,7 +7,7 @@ const Bills = () => {
   const [bills, setBills] = useState([]);
   const [loading, setLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState("All");
-  const [monthFilter, setMonthFilter] = useState(format(new Date(), "yyyy-MM"));
+  // const [monthFilter, setMonthFilter] = useState(format(new Date(), "yyyy-MM"));
   const [searchTerm, setSearchTerm] = useState("");
 
   // Fetch all bills
@@ -46,13 +46,13 @@ const Bills = () => {
       if (statusFilter === "All") return true;
       return bill.status === statusFilter;
     })
-    .filter((bill) => {
-      if (!monthFilter) return true;
-      const date = new Date(bill.createdAt);
-      if (!bill.createdAt || !isValid(date)) return false; // safe check
-      const billMonth = format(date, "yyyy-MM");
-      return billMonth === monthFilter;
-    })
+    // .filter((bill) => {
+    //   if (!monthFilter) return true;
+    //   const date = new Date(bill.createdAt);
+    //   if (!bill.createdAt || !isValid(date)) return false; // safe check
+    //   const billMonth = format(date, "yyyy-MM");
+    //   return billMonth === monthFilter;
+    // })
     .filter((bill) =>
       bill.student?.studentName
         ?.toLowerCase()
@@ -84,12 +84,12 @@ const Bills = () => {
           <option value="Paid">Paid</option>
           <option value="Unpaid">Unpaid</option>
         </select>
-        <input
+        {/* <input
           type="month"
           value={monthFilter}
           onChange={(e) => setMonthFilter(e.target.value)}
           className="border p-2 rounded"
-        />
+        /> */}
       </div>
 
       {loading ? (
@@ -103,7 +103,6 @@ const Bills = () => {
                 <th className="border p-2">Class</th>
                 <th className="border p-2">Amount</th>
                 <th className="border p-2">Status</th>
-            
                 <th className="border p-2">Action</th>
               </tr>
             </thead>
