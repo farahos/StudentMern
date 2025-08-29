@@ -1,6 +1,6 @@
 import cron from "node-cron";
-import student from "./model/Student";
-import Bill from "./model/Bill";
+import student from "./model/Student.js";
+import Bill from "./model/Bill.js";
 
 
 cron.schedule("0 0 1 * *", async () => {
