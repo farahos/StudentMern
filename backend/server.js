@@ -30,20 +30,7 @@ app.use("/api/bills", billRoutes);
 
 
 
-// 📌 Cron Job: 10 daqiiqo kasta hubi bills Paid > 10 daqiiqo → Unpaid
-nodeCron.schedule("*/10 * * * *", async () => {
-  const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000); // 10 minutes ago
-  try {
-    const bills = await Bill.find({ status: "Paid", lastPaidAt: { $lte: tenMinutesAgo } });
-    for (let bill of bills) {
-      bill.status = "Unpaid";
-      await bill.save();
-      console.log(`🔄 Bill ${bill._id} reverted back to Unpaid after 10 minutes`);
-    }
-  } catch (error) {
-    console.error("Error in cron job:", error);
-  }
-});
+
 conectBD();
 app.listen(PORT ,()=>{
     console.log(`Server is running on port ${PORT}`);

@@ -1,9 +1,10 @@
 import express from "express";
-import { getBills, markAsPaid } from "../controller/billController.js";
+import { createBill, getStudentBills, payBill } from "../controller/billController";
 
 const router = express.Router();
 
-router.get("/", getBills);
-router.put("/:id/pay", markAsPaid);
+router.post("/", createBill); // create a new bill
+router.patch("/:billId/pay", payBill); // pay a bill
+router.get("/:studentId", getStudentBills); // get student bills
 
 export default router;

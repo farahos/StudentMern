@@ -1,73 +1,53 @@
 import Bill from "../model/Bill.js";
 import student from "../model/Student.js";
 
-export const getBills = async (req, res) => {
+
+// Create bill for a student
+export const createBill = async (req, res) => {
   try {
-    const studentsList = await student.find();
+    const { studentId, month, year } = req.body;
+    const student = await student.findById(studentId);
+    if (!student) return res.status(404).json({ message: "Student not found" });
 
-    const result = await Promise.all(
-      studentsList.map(async (stud) => {
-        const bill = await Bill.findOne({
-          student: stud._id,
-        });
+    const existing = await Bill.findOne({ student: studentId, month, year });
+    if (existing) return res.status(400).json({ message: "Bill already exists" });
 
-        return {
-          _id: stud._id,
-          studentName: stud.studentName,
-          studentClass: stud.studentClass,
-          fee: stud.fee,
-          // Haddii bill jiro → bill.status, haddii kale → "Unpaid"
-          billStatus: bill ? bill.status : "Unpaid",
-        };
-      })
-    );
+    const newBill = new Bill({
+      student: studentId,
+      amount: student.fee,
+      month,
+      year
+    });
 
-    res.status(200).send(result);
-  } catch (error) {
-    console.error("Error in fetching students with bill status:", error);
-    res.status(400).send({ message: "Error in fetching students with bill status" });
+    await newBill.save();
+    res.status(201).json(newBill);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
 
-// ✅ Mark bill as Paid
-export const markAsPaid = async (req, res) => {
+// Mark bill as paid
+export const payBill = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { billId } = req.params;
+    const bill = await Bill.findById(billId);
+    if (!bill) return res.status(404).json({ message: "Bill not found" });
 
-    // Hel bill-ka oo populate student info
-    const bill = await Bill.findById(id).populate("student", "studentName studentClass");
-
-    if (!bill) {
-      return res.status(404).json({ message: "Bill not found" });
-    }
-
-    if (!bill.student) {
-      return res.status(404).json({ message: "Associated student not found" });
-    }
-
-    if (bill.status === "Paid") {
-      return res.status(400).json({ message: "Bill is already Paid" });
-    }
-
-    // Update status & lastPaidAt
-    bill.status = "Paid";
-    bill.lastPaidAt = new Date();
-
+    bill.status = "paid";
     await bill.save();
+    res.json({ message: "Bill paid successfully", bill });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
-    res.status(200).json({
-      message: "Bill marked as Paid successfully",
-      bill: {
-        id: bill._id,
-        studentName: bill.student.studentName,
-        studentClass: bill.student.studentClass,
-        status: bill.status,
-        lastPaidAt: bill.lastPaidAt,
-        fee: bill.fee, // haddii fee aad rabto in la muujiyo
-      },
-    });
-  } catch (error) {
-    console.error("Error updating bill:", error);
-    res.status(500).json({ message: "Server error: " + error.message });
+// Get all bills for a student
+export const getStudentBills = async (req, res) => {
+  try {
+    const { studentId } = req.params;
+    const bills = await Bill.find({ student: studentId }).sort({ year: -1, month: -1 });
+    res.json(bills);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
