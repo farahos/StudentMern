@@ -205,7 +205,9 @@ const ViewStudent = () => {
               ) : (
                 filteredStudents.map((student) => (
                   <tr key={student._id} className="hover:bg-gray-50">
-                    <td className="p-3 border-b">{student.studentName}</td>
+                     <Link to={`/add-student`} className="text-blue-600 hover:underline">
+                        {student.studentName}
+                      </Link>
                     <td className="p-3 border-b">{student.studentPhone}</td>
                     <td className="p-3 border-b">{student.course}</td>
                     <td className="p-3 border-b">{student.motherName}</td>
