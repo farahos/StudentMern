@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+waxa raba ina si qurux badan oo modern oo casri ah iga dhigto waxa jira isku dhax yaac ka dhig wax la fahmi karo user ka ku raxesan karo code kan soo socda import React, { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { confirmAlert } from 'react-confirm-alert'; // For delete confirmation
