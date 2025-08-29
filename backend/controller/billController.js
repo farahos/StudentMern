@@ -1,41 +1,61 @@
 // import Bill from "../model/Bill.js";
+import Student from "../model/Student.js";
 
-// export const getBills = async (req, res) => {
-//   try {
-//     const bills = await Bill.find()
-//       .populate("student", "studentName studentClass")
-//       .sort({ createdAt: -1 }); // newest bill first
+// Get Bills
+export const getBills = async (req, res) => {
+  try {
+    const bills = await Bill.find()
+      .populate("student", "studentName studentClass")
+      .sort({ createdAt: -1 });
 
-//     const seen = new Set();
-//     const uniqueBills = [];
+    res.status(200).json(bills);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
-//     for (const bill of bills) {
-//       if (!bill.student) continue; // ignore null students
-//       if (!seen.has(bill.student._id.toString())) {
-//         seen.add(bill.student._id.toString());
-//         uniqueBills.push(bill);
-//       }
-//     }
+// Mark Bill as Paid
+export const markAsPaid = async (req, res) => {
+  try {
+    const bill = await Bill.findById(req.params.id);
+    if (!bill) return res.status(404).json({ message: "Bill not found" });
 
-//     res.status(200).json(uniqueBills);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ message: error.message });
-//   }
-// };
+    bill.status = "Paid";
+    bill.lastPaidAt = new Date();
+    await bill.save();
 
-// // Mark as Paid (temporary)
-// export const markAsPaid = async (req, res) => {
-//   try {
-//     const bill = await Bill.findById(req.params.id);
-//     if (!bill) return res.status(404).json({ message: "Bill not found" });
+    res.status(200).json({ message: "Bill marked as Paid", bill });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
-//     bill.status = "Paid";
-//     bill.lastPaidAt = new Date();
-//     await bill.save();
+// Get Students with Bill Status for current month
+export const getStudentsWithBillStatus = async (req, res) => {
+  try {
+    const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
+    const studentsList = await Student.find();
 
-//     res.status(200).json({ message: "Bill marked as Paid (temporary)", bill });
-//   } catch (error) {
-//     res.status(500).json({ message: error.message });
-//   }
-// };
+    const result = await Promise.all(
+      studentsList.map(async (stud) => {
+        const bill = await Bill.findOne({
+          student: stud._id,
+          month: currentMonth
+        });
+
+        return {
+          _id: stud._id,
+          studentName: stud.studentName,
+          studentClass: stud.studentClass,
+          fee: stud.fee,
+          billStatus: bill ? bill.status : "Unpaid",
+          month: bill ? bill.month : currentMonth
+        };
+      })
+    );
+
+    res.status(200).send(result);
+  } catch (error) {
+    res.status(400).send({ message: "Error in fetching students with bill status" });
+  }
+};
