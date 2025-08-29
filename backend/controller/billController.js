@@ -1,11 +1,11 @@
-import Bill from "../model/Bill";
-import student from "../model/Student";
+import Bill from "../model/Bill.js";
+import Student from "../model/Student.js";
 
 
 // ✅ Generate bills for all students (run at start of each month)
 export const generateMonthlyBills = async () => {
   try {
-    const students = await student.find();
+    const students = await Student.find();
     const now = new Date();
     const month = now.getMonth() + 1; // 1 - 12
     const year = now.getFullYear();
