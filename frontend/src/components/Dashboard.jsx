@@ -10,7 +10,9 @@ const Dashboard = () => {
     totalStudents: 0,
     totalFee: 0,
     courseCounts: [],
-    totalBills: 0,   // 🔹 Bill total ka
+    totalBills: 0,
+    paidAmount: 0,
+    unpaidAmount: 0
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -26,18 +28,26 @@ const Dashboard = () => {
           axios.get("https://studentmern.onrender.com/api/student/countStudents"),
           axios.get("https://studentmern.onrender.com/api/student/countFee"),
           axios.get("https://studentmern.onrender.com/api/student/countCourse"),
-          axios.get("https://studentmern.onrender.com/api/bills") // 🔹 soo jiid bills
+          axios.get("https://studentmern.onrender.com/api/bills")
         ]);
 
-        // total bills amount
+        // Bills calculations
         const totalBills = billsRes.data.reduce((acc, b) => acc + (b.amount || 0), 0);
+        const paidAmount = billsRes.data
+          .filter(b => b.status === "Paid")
+          .reduce((acc, b) => acc + (b.amount || 0), 0);
+        const unpaidAmount = billsRes.data
+          .filter(b => b.status === "Unpaid")
+          .reduce((acc, b) => acc + (b.amount || 0), 0);
 
         setStats({
           students: studentsRes.data,
           totalStudents: countRes.data.count,
           totalFee: feeRes.data.totalFee,
           courseCounts: coursesRes.data,
-          totalBills: totalBills
+          totalBills,
+          paidAmount,
+          unpaidAmount
         });
 
       } catch (err) {
@@ -55,6 +65,12 @@ const Dashboard = () => {
   const recentStudents = [...stats.students]
     .sort((a, b) => new Date(b.dateRegistration) - new Date(a.dateRegistration))
     .slice(0, 5);
+
+  // Chart data for Paid vs Unpaid
+  const billStatusData = [
+    { name: "Paid", value: stats.paidAmount },
+    { name: "Unpaid", value: stats.unpaidAmount }
+  ];
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -97,7 +113,7 @@ const Dashboard = () => {
 
           {/* Charts & Table */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
-            {/* Pie Chart */}
+            {/* Pie Chart: Course Distribution */}
             <div className="bg-white p-4 shadow rounded-lg">
               <h3 className="text-lg font-semibold mb-4">Course Distribution</h3>
               <ResponsiveContainer width="100%" height={250}>
@@ -121,31 +137,55 @@ const Dashboard = () => {
               </ResponsiveContainer>
             </div>
 
-            {/* Recent Students Table */}
+            {/* Pie Chart: Paid vs Unpaid */}
             <div className="bg-white p-4 shadow rounded-lg">
-              <h3 className="text-lg font-semibold mb-4">Recent Registrations</h3>
-              <div className="overflow-x-auto">
-                <table className="min-w-full bg-white">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="py-2 px-4 text-left">Name</th>
-                      <th className="py-2 px-4 text-left">Course</th>
-                      <th className="py-2 px-4 text-left">Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {recentStudents.map((student) => (
-                      <tr key={student._id || student.studentName} className="border-b">
-                        <td className="py-2 px-4">{student.studentName}</td>
-                        <td className="py-2 px-4">{student.course}</td>
-                        <td className="py-2 px-4">
-                          {new Date(student.dateRegistration).toLocaleDateString()}
-                        </td>
-                      </tr>
+              <h3 className="text-lg font-semibold mb-4">Bills Status (Paid vs Unpaid)</h3>
+              <ResponsiveContainer width="100%" height={250}>
+                <PieChart>
+                  <Pie
+                    data={billStatusData}
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={80}
+                    dataKey="value"
+                    nameKey="name"
+                    label
+                  >
+                    {billStatusData.map((_, index) => (
+                      <Cell key={index} fill={COLORS[index % COLORS.length]} />
                     ))}
-                  </tbody>
-                </table>
-              </div>
+                  </Pie>
+                  <Tooltip formatter={(value) => `$${value.toLocaleString()}`} />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Recent Students Table */}
+          <div className="bg-white p-4 shadow rounded-lg">
+            <h3 className="text-lg font-semibold mb-4">Recent Registrations</h3>
+            <div className="overflow-x-auto">
+              <table className="min-w-full bg-white">
+                <thead>
+                  <tr className="border-b">
+                    <th className="py-2 px-4 text-left">Name</th>
+                    <th className="py-2 px-4 text-left">Course</th>
+                    <th className="py-2 px-4 text-left">Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentStudents.map((student) => (
+                    <tr key={student._id || student.studentName} className="border-b">
+                      <td className="py-2 px-4">{student.studentName}</td>
+                      <td className="py-2 px-4">{student.course}</td>
+                      <td className="py-2 px-4">
+                        {new Date(student.dateRegistration).toLocaleDateString()}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         </>
