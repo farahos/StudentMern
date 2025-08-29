@@ -12,19 +12,20 @@ const Sidebar = () => {
     if (!user) navigate("/login");
   }, [user]);
 
+  // Links navigation oo af-Soomaali ah
   const navLinks = [
-    { path: "/dashboard", label: "Dashboard" },
-    { path: "/add-student", label: "Add Student" },
-    { path: "/view-student", label: "View Students" },
-    { path: "/attendance", label: "Attendance" },
-    { path: "/absent-students", label: "Absent Students" },
-    { path: "/bills", label: "Bills" }
+    { path: "/dashboard", label: "Warbixin Guud" },
+    { path: "/add-student", label: "Kudar Arday" },
+    { path: "/view-student", label: "Ardayda Dhammaan" },
+    { path: "/attendance", label: "Xaadirinta" },
+    { path: "/absent-students", label: "Ardayda Maqan" },
+    { path: "/bills", label: "Biilasha" }
   ];
 
   return (
     <header className="bg-blue-700 text-white shadow-md">
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Student System</h1>
+        <h1 className="text-2xl font-bold">Nidaamka Ardayda</h1>
 
         <nav className="space-x-4 flex items-center">
           {user && navLinks.map((link) => (
@@ -44,14 +45,14 @@ const Sidebar = () => {
               onClick={logout}
               className="ml-4 bg-red-500 hover:bg-red-600 px-4 py-1 rounded text-sm font-semibold transition"
             >
-              Logout
+              Ka Bax
             </button>
           ) : (
             <Link
               to="/login"
               className="ml-4 bg-green-500 hover:bg-green-600 px-4 py-1 rounded text-sm font-semibold transition"
             >
-              Login
+              Soo Gal
             </Link>
           )}
         </nav>
