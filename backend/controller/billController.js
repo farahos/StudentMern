@@ -28,26 +28,23 @@ export const generateMonthlyBills = async () => {
     console.error("❌ Error generating bills:", err);
   }
 };
-
-// ✅ Get bills for a student
-export const getStudentBills = async (req, res) => {
+// 🔹 Get all students with their bills
+export const getAllStudentsWithBills = async (req, res) => {
   try {
-    const bills = await Bill.find({ student: req.params.id }).populate("student");
-    res.json(bills);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
+    const students = await Student.find();
 
-// ✅ Update bill status (pay it)
-export const payBill = async (req, res) => {
-  try {
-    const bill = await Bill.findByIdAndUpdate(
-      req.params.id,
-      { status: "paid" },
-      { new: true }
+    // For each student, fetch their bills
+    const data = await Promise.all(
+      students.map(async (student) => {
+        const bills = await Bill.find({ student: student._id });
+        return {
+          student,
+          bills,
+        };
+      })
     );
-    res.json(bill);
+
+    res.json(data);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
