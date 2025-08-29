@@ -5,6 +5,7 @@ import axios from "axios";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import toast from "react-hot-toast";
+import { Document, Packer, Paragraph, TextRun } from "docx"; // 👈 Word export
 
 const ViewStudent = () => {
   const [students, setStudents] = useState([]);
@@ -73,7 +74,8 @@ const ViewStudent = () => {
     })
     .sort((a, b) => new Date(b.dateRegistration) - new Date(a.dateRegistration));
 
-  const handleExport = () => {
+  // ✅ Excel Export
+  const handleExportExcel = () => {
     const dataToExport = filteredStudents.map(student => ({
       "Student Name": student.studentName,
       "Phone": student.studentPhone,
@@ -92,6 +94,40 @@ const ViewStudent = () => {
     const fileData = new Blob([excelBuffer], { type: "application/octet-stream" });
     saveAs(fileData, "Students_List.xlsx");
     toast.success("Excel file downloaded successfully!");
+  };
+
+  // ✅ Word Export
+  const handleExportWord = async () => {
+    const doc = new Document({
+      sections: [
+        {
+          properties: {},
+          children: [
+            new Paragraph({
+              children: [new TextRun({ text: "Students List", bold: true, size: 28 })],
+            }),
+            ...filteredStudents.map(student =>
+              new Paragraph({
+                children: [
+                  new TextRun(`Name: ${student.studentName} | `),
+                  new TextRun(`Phone: ${student.studentPhone} | `),
+                  new TextRun(`Course: ${student.course} | `),
+                  new TextRun(`Mother: ${student.motherName} | `),
+                  new TextRun(`Mother Phone: ${student.motherPhone} | `),
+                  new TextRun(`Class: ${student.studentClass} | `),
+                  new TextRun(`Fee: $${student.fee} | `),
+                  new TextRun(`Reg Date: ${new Date(student.dateRegistration).toLocaleDateString()}`),
+                ],
+              })
+            ),
+          ],
+        },
+      ],
+    });
+
+    const blob = await Packer.toBlob(doc);
+    saveAs(blob, "Students_List.docx");
+    toast.success("Word file downloaded successfully!");
   };
 
   return (
@@ -121,11 +157,19 @@ const ViewStudent = () => {
             </select>
             
             <button
-              onClick={handleExport}
+              onClick={handleExportExcel}
               className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition"
               disabled={filteredStudents.length === 0}
             >
               Export Excel
+            </button>
+
+            <button
+              onClick={handleExportWord}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+              disabled={filteredStudents.length === 0}
+            >
+              Export Word
             </button>
           </div>
         </div>
@@ -154,7 +198,7 @@ const ViewStudent = () => {
             <tbody>
               {filteredStudents.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="text-center py-4 text-gray-500">
+                  <td colSpan="8" className="text-center py-4 text-gray-500">
                     No students found
                   </td>
                 </tr>
