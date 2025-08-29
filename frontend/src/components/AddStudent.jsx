@@ -7,11 +7,9 @@ import 'react-confirm-alert/src/react-confirm-alert.css'; // Import confirmation
 const AddStudent = () => {
   // Available courses for dropdown
   const courses = [
-    "English",
-    "Arabic",
-    "Math",
-    "Science",
-    "History",
+    "English and math",
+    "Somalia and math",
+    "4 scientific subjects"
     
   ];
 
