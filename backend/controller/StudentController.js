@@ -17,7 +17,13 @@ export const addStudent = async (req, res) => {
         });
 
         await newStudent.save();
-         
+         // Create first bill for current month
+        const currentMonth = new Date().toISOString().slice(0, 7);
+        await Bill.create({
+            student: newStudent._id,
+            month: currentMonth,
+            amount: fee
+        });
         res.status(201).send({ message: "Student added successfully" });
         
     } catch (error) {
