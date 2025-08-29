@@ -1,21 +1,30 @@
-import React, { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { confirmAlert } from "react-confirm-alert";
-import "react-confirm-alert/src/react-confirm-alert.css";
+import { confirmAlert } from 'react-confirm-alert'; // For delete confirmation
+import 'react-confirm-alert/src/react-confirm-alert.css'; // Import confirmation dialog styles
 
 const AddStudent = () => {
-  const courses = ["English", "Arabic", "Math", "Science", "History"];
+  // Available courses for dropdown
+  const courses = [
+    "English",
+    "Arabic",
+    "Math",
+    "Science",
+    "History",
+    
+  ];
+
   const [student, setStudent] = useState({
     studentName: "",
     studentPhone: "",
-    course: courses[0],
+    course: courses[0], // Default to first course
     motherName: "",
     motherPhone: "",
     studentClass: "",
     fee: "",
-    dateRegistration: new Date().toISOString().split("T")[0],
+    dateRegistration: new Date().toISOString().split('T')[0] // Default to today
   });
+  
   const [students, setStudents] = useState([]);
   const [editId, setEditId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -25,40 +34,40 @@ const AddStudent = () => {
   const fetchStudents = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(
-        "https://studentmern.onrender.com/api/student/getStudents"
-      );
+      const res = await axios.get("https://studentmern.onrender.com/api/student/getStudents");
       setStudents(res.data);
-    } catch {
+    } catch (error) {
       toast.error("Failed to fetch students");
+      console.error("Error fetching students:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => fetchStudents(), []);
+  useEffect(() => {
+    fetchStudents();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setStudent((prev) => ({ ...prev, [name]: value }));
+    setStudent(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       if (editId) {
-        await axios.put(
-          `https://studentmern.onrender.com/api/student/updateStudent/${editId}`,
-          student
-        );
-        toast.success("Student updated!");
+        await axios.put(`https://studentmern.onrender.com/api/student/updateStudent/${editId}`, student);
+        toast.success("Student updated successfully!");
       } else {
-        await axios.post(
-          "https://studentmern.onrender.com/api/student/addStudent",
-          student
-        );
-        toast.success("Student added!");
+        await axios.post("https://studentmern.onrender.com/api/student/addStudent", student);
+        toast.success("Student added successfully!");
       }
+      
+      // Reset form and refresh list
       setStudent({
         studentName: "",
         studentPhone: "",
@@ -67,138 +76,194 @@ const AddStudent = () => {
         motherPhone: "",
         studentClass: "",
         fee: "",
-        dateRegistration: new Date().toISOString().split("T")[0],
+        dateRegistration: new Date().toISOString().split('T')[0]
       });
       setEditId(null);
       fetchStudents();
-    } catch {
+    } catch (error) {
       toast.error("Failed to save student");
+      console.error("Error saving student:", error);
     }
   };
 
-  const handleEdit = (s) => {
+  const handleEdit = (student) => {
     setStudent({
-      studentName: s.studentName,
-      studentPhone: s.studentPhone,
-      course: s.course,
-      motherName: s.motherName,
-      motherPhone: s.motherPhone,
-      studentClass: s.studentClass,
-      fee: s.fee,
-      dateRegistration: s.dateRegistration.split("T")[0],
+      studentName: student.studentName,
+      studentPhone: student.studentPhone,
+      course: student.course,
+      motherName: student.motherName,
+      motherPhone: student.motherPhone,
+      studentClass: student.studentClass,
+      fee: student.fee,
+      dateRegistration: student.dateRegistration.split('T')[0]
     });
-    setEditId(s._id);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    setEditId(student._id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleDelete = (id) => {
     confirmAlert({
-      title: "Delete Student",
-      message: "Are you sure?",
+      title: 'Confirm to delete',
+      message: 'Are you sure you want to delete this student?',
       buttons: [
         {
-          label: "Yes",
+          label: 'Yes',
           onClick: async () => {
             try {
-              await axios.delete(
-                `https://studentmern.onrender.com/api/student/deleteStudent/${id}`
-              );
-              toast.success("Student deleted!");
+              await axios.delete(`https://studentmern.onrender.com/api/student/deleteStudent/${id}`);
+              toast.success("Student deleted successfully!");
               fetchStudents();
-            } catch {
-              toast.error("Failed to delete");
+            } catch (error) {
+              toast.error("Failed to delete student");
+              console.error("Error deleting student:", error);
             }
-          },
+          }
         },
-        { label: "No" },
-      ],
+        {
+          label: 'No',
+          onClick: () => {}
+        }
+      ]
     });
   };
 
-  const handleFileChange = (e) => setFile(e.target.files[0]);
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
+
   const handleImport = async () => {
-    if (!file) return toast.error("Select a file first");
+    if (!file) {
+      toast.error("Please select a file first");
+      return;
+    }
+
     const formData = new FormData();
     formData.append("file", file);
+
     try {
-      await axios.post(
-        "https://studentmern.onrender.com/api/student/import",
-        formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
-      toast.success("Imported successfully!");
+      await axios.post("https://studentmern.onrender.com/api/student/import", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      toast.success("Students imported successfully!");
       fetchStudents();
       setFile(null);
-    } catch {
-      toast.error("Failed to import");
+    } catch (error) {
+      toast.error("Failed to import students");
+      console.error("Import error:", error);
     }
   };
 
   const filteredStudents = students
-    .filter((s) => s.studentName.toLowerCase().includes(searchTerm.toLowerCase()))
+    .filter(s =>
+      s.studentName.toLowerCase().includes(searchTerm.toLowerCase())
+    )
     .sort((a, b) => new Date(b.dateRegistration) - new Date(a.dateRegistration));
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-gray-100 to-gray-200 p-6">
-      <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-8">
-        {/* Form */}
-        <div className="bg-white rounded-3xl shadow-lg p-8 transition hover:shadow-2xl">
-          <h2 className="text-3xl font-bold text-blue-600 mb-6">
+    <div className="w-full px-4 py-6 md:p-8 bg-gray-100 min-h-screen">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+        {/* Form Section */}
+        <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-all duration-300">
+          <h2 className="text-2xl font-bold text-blue-600 mb-4">
             {editId ? "Update Student" : "Add New Student"}
           </h2>
-          <form className="space-y-4" onSubmit={handleSubmit}>
-            {[
-              { name: "studentName", placeholder: "Student Name" },
-              { name: "studentPhone", placeholder: "Student Phone" },
-              { name: "motherName", placeholder: "Mother's Name" },
-              { name: "motherPhone", placeholder: "Mother's Phone" },
-              { name: "studentClass", placeholder: "Class" },
-            ].map((f) => (
-              <input
-                key={f.name}
-                name={f.name}
-                placeholder={f.placeholder}
-                value={student[f.name]}
-                onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400"
-                required
-              />
-            ))}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <input
+              type="text"
+              name="studentName"
+              placeholder="Student Name"
+              value={student.studentName}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+              required
+            />
+            <input
+              type="text"
+              name="studentPhone"
+              placeholder="Student Phone"
+              value={student.studentPhone}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+              required
+            />
+            
+            {/* Course Dropdown */}
             <select
               name="course"
               value={student.course}
               onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+              required
             >
-              {courses.map((c) => (
-                <option key={c}>{c}</option>
+              {courses.map((course) => (
+                <option key={course} value={course}>
+                  {course}
+                </option>
               ))}
             </select>
+            
             <input
-              type="number"
-              name="fee"
-              value={student.fee}
-              placeholder="Fee"
+              type="text"
+              name="motherName"
+              placeholder="Mother's Name"
+              value={student.motherName}
               onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-400 focus:outline-none"
               required
             />
+            <input
+              type="text"
+              name="motherPhone"
+              placeholder="Mother's Phone"
+              value={student.motherPhone}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+              required
+            />
+            <input
+              type="text"
+              name="studentClass"
+              placeholder="Class"
+              value={student.studentClass}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+              required
+            />
+            
+            <div className="relative">
+              <span className="absolute left-3 top-3 text-gray-500">$</span>
+              <input
+                type="number"
+                name="fee"
+                placeholder="Fee"
+                value={student.fee}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded-lg p-3 pl-8 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                required
+              />
+            </div>
             <input
               type="date"
               name="dateRegistration"
               value={student.dateRegistration}
               onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-400 focus:outline-none"
               required
             />
             <button
               type="submit"
-              className={`w-full py-3 rounded-xl text-white font-semibold transition hover:scale-105 ${
-                editId ? "bg-yellow-500 hover:bg-yellow-600" : "bg-blue-600 hover:bg-blue-700"
+              className={`w-full py-3 rounded-lg font-semibold transition-all duration-300 hover:scale-105 ${
+                editId 
+                  ? "bg-yellow-500 hover:bg-yellow-600 text-white"
+                  : "bg-blue-600 hover:bg-blue-700 text-white"
               }`}
             >
               {editId ? "Update Student" : "Add Student"}
             </button>
+            
             {editId && (
               <button
                 type="button"
@@ -210,33 +275,34 @@ const AddStudent = () => {
                     course: courses[0],
                     motherName: "",
                     motherPhone: "",
-                    studentClass: "",
                     fee: "",
-                    dateRegistration: new Date().toISOString().split("T")[0],
+                    dateRegistration: new Date().toISOString().split('T')[0]
                   });
                 }}
-                className="w-full py-3 mt-2 rounded-xl bg-gray-400 text-white hover:bg-gray-500 transition"
+                className="w-full bg-gray-500 text-white py-3 rounded-lg font-semibold hover:bg-gray-600 transition-all duration-300"
               >
-                Cancel
+                Cancel Edit
               </button>
             )}
           </form>
 
-          {/* Import */}
-          <div className="mt-6 border-t pt-4">
-            <h3 className="font-semibold text-gray-700 mb-2">Bulk Import</h3>
-            <div className="flex gap-2">
+          {/* Import Section */}
+          <div className="mt-6 space-y-3">
+            <h3 className="font-semibold text-gray-700">Bulk Import (Excel)</h3>
+            <div className="flex items-center space-x-2">
               <input
                 type="file"
                 accept=".xlsx,.xls,.csv"
                 onChange={handleFileChange}
-                className="flex-1 border p-2 rounded-xl"
+                className="flex-1 p-2 border border-gray-300 rounded"
               />
               <button
                 onClick={handleImport}
                 disabled={!file}
-                className={`px-4 py-2 rounded-xl ${
-                  file ? "bg-green-600 text-white hover:bg-green-700" : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                className={`px-4 py-2 rounded transition duration-300 ${
+                  file 
+                    ? "bg-green-600 hover:bg-green-700 text-white"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
                 }`}
               >
                 Import
@@ -245,58 +311,87 @@ const AddStudent = () => {
           </div>
         </div>
 
-        {/* Students List */}
+        {/* Student List Section */}
         <div>
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-2xl font-bold text-gray-700">Students</h3>
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4 gap-2">
+            <h3 className="text-xl font-semibold text-gray-700">Students List</h3>
             <input
+              type="text"
               placeholder="Search by name..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="border p-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
 
           {loading ? (
-            <div className="text-center py-10">
-              <div className="animate-spin h-12 w-12 border-t-2 border-b-2 border-blue-500 rounded-full mx-auto"></div>
-              <p className="mt-2 text-gray-500">Loading...</p>
-            </div>
-          ) : filteredStudents.length === 0 ? (
-            <div className="bg-white p-6 rounded-xl shadow text-center">
-              <p className="text-gray-500">No students found.</p>
-              {searchTerm && (
-                <button onClick={() => setSearchTerm("")} className="mt-2 text-blue-500 hover:underline">
-                  Clear search
-                </button>
-              )}
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
+              <p className="mt-2 text-gray-600">Loading students...</p>
             </div>
           ) : (
-            <div className="space-y-3 max-h-[600px] overflow-y-auto">
-              {filteredStudents.map((s) => (
-                <div key={s._id} className="bg-white p-4 rounded-2xl shadow-sm hover:shadow-md border-l-4 border-blue-500 transition">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="font-bold text-blue-700 text-lg">{s.studentName}</p>
-                      <p className="text-gray-600 text-sm">{s.course} | Fee: ${s.fee}</p>
-                      <p className="text-gray-500 text-xs">
-                        Mother: {s.motherName} ({s.motherPhone})
-                      </p>
-                      <p className="text-gray-400 text-xs">
-                        Registered: {new Date(s.dateRegistration).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <div className="flex gap-2">
-                      <button onClick={() => handleEdit(s)} className="px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-white rounded-md text-sm">
-                        Edit
-                      </button>
-                      <button onClick={() => handleDelete(s._id)} className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-md text-sm">
-                        Delete
-                      </button>
+            <div className="space-y-4 overflow-y-auto max-h-[600px] pr-2">
+              {filteredStudents.length === 0 ? (
+                <div className="text-center py-8 bg-white rounded-lg shadow">
+                  <p className="text-gray-500">No students found</p>
+                  {searchTerm && (
+                    <button 
+                      onClick={() => setSearchTerm("")}
+                      className="mt-2 text-blue-500 hover:text-blue-700"
+                    >
+                      Clear search
+                    </button>
+                  )}
+                </div>
+              ) : (
+                filteredStudents.map((s) => (
+                  <div
+                    key={s._id}
+                    className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition duration-300 border-l-4 border-blue-500"
+                  >
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <div className="flex justify-between items-start">
+                          <p className="text-lg font-semibold text-blue-700">{s.studentName}</p>
+                          <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
+                            {s.course}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-600 mt-1">
+                          <span className="font-medium">Fee:</span> ${s.fee} | 
+                          <span className="font-medium ml-2">Registered:</span> {new Date(s.dateRegistration).toLocaleDateString()}
+                        </p>
+                        <p className="text-sm text-gray-500 mt-1">
+                          <span className="font-medium">Student Phone:</span> {s.studentPhone}
+                        </p>
+                        <p className="text-xs text-gray-400 mt-1">
+                          <span className="font-medium">Mother:</span> {s.motherName} ({s.motherPhone})
+                        </p>
+                      </div>
+                      <div className="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0 ml-2">
+                        <button
+                          onClick={() => handleEdit(s)}
+                          className="bg-yellow-400 hover:bg-yellow-500 text-white px-3 py-1 rounded-lg text-sm transition duration-200 flex items-center"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(s._id)}
+                          className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-sm transition duration-200 flex items-center"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                          Delete
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           )}
         </div>
