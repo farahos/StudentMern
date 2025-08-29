@@ -17,7 +17,6 @@ const Sidebar = () => {
     { path: "/add-student", label: "Add Student" },
     { path: "/view-student", label: "View Students" },
     { path: "/attendance", label: "Attendance" },
-    { path: "/AttendanceHistory", label: "Attendance History" },
     { path: "/absent-students", label: "Absent Students" },
     { path: "/bills", label: "Bills" }
   ];
