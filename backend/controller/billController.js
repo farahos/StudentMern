@@ -1,53 +1,54 @@
-import Bill from "../model/Bill.js";
-import student from "../model/Student.js";
+import Bill from "../model/Bill";
+import student from "../model/Student";
 
 
-// Create bill for a student
-export const createBill = async (req, res) => {
+// ✅ Generate bills for all students (run at start of each month)
+export const generateMonthlyBills = async () => {
   try {
-    const { studentId, month, year } = req.body;
-    const student = await student.findById(studentId);
-    if (!student) return res.status(404).json({ message: "Student not found" });
+    const students = await student.find();
+    const now = new Date();
+    const month = now.getMonth() + 1; // 1 - 12
+    const year = now.getFullYear();
 
-    const existing = await Bill.findOne({ student: studentId, month, year });
-    if (existing) return res.status(400).json({ message: "Bill already exists" });
-
-    const newBill = new Bill({
-      student: studentId,
-      amount: student.fee,
-      month,
-      year
-    });
-
-    await newBill.save();
-    res.status(201).json(newBill);
+    for (const student of students) {
+      // Check if bill already exists for this student in current month
+      const existingBill = await Bill.findOne({ student: student._id, month, year });
+      if (!existingBill) {
+        await Bill.create({
+          student: student._id,
+          amount: student.fee,
+          month,
+          year,
+          status: "unpaid"
+        });
+      }
+    }
+    console.log("✅ Monthly bills generated");
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error("❌ Error generating bills:", err);
   }
 };
 
-// Mark bill as paid
-export const payBill = async (req, res) => {
-  try {
-    const { billId } = req.params;
-    const bill = await Bill.findById(billId);
-    if (!bill) return res.status(404).json({ message: "Bill not found" });
-
-    bill.status = "paid";
-    await bill.save();
-    res.json({ message: "Bill paid successfully", bill });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
-
-// Get all bills for a student
+// ✅ Get bills for a student
 export const getStudentBills = async (req, res) => {
   try {
-    const { studentId } = req.params;
-    const bills = await Bill.find({ student: studentId }).sort({ year: -1, month: -1 });
+    const bills = await Bill.find({ student: req.params.id }).populate("student");
     res.json(bills);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// ✅ Update bill status (pay it)
+export const payBill = async (req, res) => {
+  try {
+    const bill = await Bill.findByIdAndUpdate(
+      req.params.id,
+      { status: "paid" },
+      { new: true }
+    );
+    res.json(bill);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
