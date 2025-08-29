@@ -9,5 +9,6 @@ const billSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
+
 const Bill = mongoose.model("Bill", billSchema);
 export default Bill;
