@@ -1,17 +1,20 @@
-// ViewStudent.jsx
-
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import toast from "react-hot-toast";
-import { Document, Packer, Paragraph, TextRun } from "docx"; // 👈 Word export
+import { Document, Packer, Paragraph, TextRun } from "docx";
+import { Link } from "react-router-dom";
 
 const ViewStudent = () => {
   const [students, setStudents] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("day");
   const [loading, setLoading] = useState(false);
+
+  // 🔥 Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const studentsPerPage = 10; // waxad rabto 10/20/50
 
   useEffect(() => {
     const fetchStudents = async () => {
@@ -26,7 +29,6 @@ const ViewStudent = () => {
         setLoading(false);
       }
     };
-
     fetchStudents();
   }, []);
 
@@ -73,6 +75,12 @@ const ViewStudent = () => {
       return matchesSearch && matchesDate;
     })
     .sort((a, b) => new Date(b.dateRegistration) - new Date(a.dateRegistration));
+
+  // 🔥 Pagination logic
+  const indexOfLast = currentPage * studentsPerPage;
+  const indexOfFirst = indexOfLast - studentsPerPage;
+  const currentStudents = filteredStudents.slice(indexOfFirst, indexOfLast);
+  const totalPages = Math.ceil(filteredStudents.length / studentsPerPage);
 
   // ✅ Excel Export
   const handleExportExcel = () => {
@@ -196,16 +204,16 @@ const ViewStudent = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredStudents.length === 0 ? (
+              {currentStudents.length === 0 ? (
                 <tr>
                   <td colSpan="8" className="text-center py-4 text-gray-500">
                     No students found
                   </td>
                 </tr>
               ) : (
-                filteredStudents.map((student) => (
+                currentStudents.map((student) => (
                   <tr key={student._id} className="hover:bg-gray-50">
-                     <Link to={`/add-student`} className="text-blue-600 hover:underline">
+                    <Link to={`/add-student`} className="text-blue-600 hover:underline">
                         {student.studentName}
                       </Link>
                     <td className="p-3 border-b">{student.studentPhone}</td>
@@ -224,6 +232,29 @@ const ViewStudent = () => {
           </table>
         </div>
       )}
+
+      {/* 🔥 Pagination Controls */}
+      <div className="flex justify-between items-center mt-4">
+        <button
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1}
+          className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+        >
+          Prev
+        </button>
+
+        <span className="text-gray-600">
+          Page {currentPage} of {totalPages}
+        </span>
+
+        <button
+          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+          disabled={currentPage === totalPages}
+          className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 };
