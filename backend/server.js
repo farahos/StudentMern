@@ -12,8 +12,14 @@ import nodeCron from 'node-cron';
 import student from './model/Student.js';
 
 
-app.use(cors());
 
+const app = express();
+const PORT = 8000
+app.use(cors({
+  origin: 'https://schoolsys-k5d8.onrender.com',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: true
+}));
 
 
 app.use(express.json());
