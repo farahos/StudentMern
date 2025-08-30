@@ -16,6 +16,14 @@ const AddStudent = () => {
    "Carabi somali English",
     
   ];
+  // i need to add class using dropdown
+  const classes = [
+    "Class 1",
+    "Class 2",
+    "Class 3",
+    "Class 4",
+    "Class 5",
+  ];
 
   const [student, setStudent] = useState({
     studentName: "",
@@ -23,7 +31,7 @@ const AddStudent = () => {
     course: courses[0], // Default to first course
     motherName: "",
     motherPhone: "",
-    studentClass: "",
+    studentClass: classes[0], // Default to first class
     fee: "",
     dateRegistration: new Date().toISOString().split('T')[0] // Default to today
   });
@@ -77,7 +85,7 @@ const AddStudent = () => {
         course: courses[0],
         motherName: "",
         motherPhone: "",
-        studentClass: "",
+        studentClass: classes[0],
         fee: "",
         dateRegistration: new Date().toISOString().split('T')[0]
       });
@@ -226,16 +234,21 @@ const AddStudent = () => {
               className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-400 focus:outline-none"
               required
             />
-            <input
-              type="text"
+            {/* Class Dropdown */}
+            <select
               name="studentClass"
-              placeholder="Class"
               value={student.studentClass}
               onChange={handleChange}
               className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-400 focus:outline-none"
               required
-            />
-            
+            >
+              {classes.map((className) => (
+                <option key={className} value={className}>
+                  {className}
+                </option>
+              ))}
+            </select>
+
             <div className="relative">
               <span className="absolute left-3 top-3 text-gray-500">$</span>
               <input
